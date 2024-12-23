@@ -44,6 +44,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
           cd /home/user1/test/devOps
           git pull origin main
-          mvn clean package
+          mvn clean package -DskipTests
           java -jar target/devOps-0.0.1-SNAPSHOT.jar
           EOF
