@@ -9,6 +9,7 @@ on:
       - main  # Также запускать при создании pull request в ветку main
 
 jobs:
+  # Джоба 1: Сборка проекта
   build:
     runs-on: ubuntu-latest  # Запускаем сборку на Linux
 
@@ -28,17 +29,44 @@ jobs:
       - name: Install dependencies and build
         run: mvn install -DskipTests
 
-      # Шаг 4: Запуск тестов
+  # Джоба 2: Запуск тестов
+  test:
+    needs: build  # Зависимость: выполняется только после успешной сборки
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонировать репозиторий
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Настроить Java 17
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Шаг 3: Запуск тестов
       - name: Run tests
         run: mvn test
 
-      # Шаг 4: Настроить SSH
+  # Джоба 3: Деплой на сервер
+  deploy:
+    needs: test  # Зависимость: выполняется только после успешного тестирования
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Клонировать репозиторий
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Шаг 2: Настроить SSH
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
 
-      # Шаг 5: Деплой на сервер
+      # Шаг 3: Деплой на сервер
       - name: Deploy to Remote Server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
