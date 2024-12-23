@@ -42,7 +42,7 @@ jobs:
       - name: Deploy to Remote Server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
-          cd /home/user1/test
+          cd /home/user1/test/devOps
           git pull origin main
           mvn clean package
           java -jar target/devOps-0.0.1-SNAPSHOT.jar
