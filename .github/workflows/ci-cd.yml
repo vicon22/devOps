@@ -31,3 +31,19 @@ jobs:
       # Шаг 4: Запуск тестов
       - name: Run tests
         run: mvn test
+
+      # Шаг 4: Настроить SSH
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+
+      # Шаг 5: Деплой на сервер
+      - name: Deploy to Remote Server
+        run: |
+          ssh ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }} << EOF
+          cd /test
+          git pull origin main
+          mvn clean package
+          java -jar target/devOps-0.0.1-SNAPSHOT.jar
+          EOF
